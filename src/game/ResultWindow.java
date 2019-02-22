@@ -1,3 +1,5 @@
+package game;
+
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -9,8 +11,10 @@ import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+//Окно, сообщающее о результате игры - win/fail
 public class ResultWindow {
 
+    //Создаем окно; Сообщение получаем на вход в зависимости от ситуации (см. метод open в классе MineField)
     public static void openResultWindow(String title, String message) {
         Stage failWindow = new Stage();
         failWindow.initModality(Modality.APPLICATION_MODAL);

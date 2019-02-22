@@ -1,3 +1,5 @@
+package game;
+
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
@@ -7,18 +9,24 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
 public class Tile extends StackPane {
+    //Положение ячейки на поле
     private int xCoord, yCoord;
+    //Открыта ли ячейка
     private boolean isOpen = false;
+    //Заминирована ли ячейка
     private boolean isMined = false;
+    //Помечена ли ячейка пользователем как заминированная
     private boolean isFlagged = false;
+    //Помечена ли ячейка пользователем, как "непонятная"
     private boolean hasQuestion = false;
+    //Хрень для графики
     private Circle border;
     private Text text = new Text();
     private ImageView flag = new ImageView(new Image("flag.png"));
     private ImageView mine = new ImageView(new Image("mine.png"));
     private ImageView question = new ImageView(new Image("question.png"));
 
-
+    //Геттеры
     public Tile(int xCoord, int yCoord, double TILE_SIZE) {
         this.xCoord = xCoord;
         this.yCoord = yCoord;
@@ -80,6 +88,7 @@ public class Tile extends StackPane {
         return hasQuestion;
     }
 
+    //Процедура открытия ячейки
     public void setOpen() {
         isOpen = true;
         border.setFill(null);

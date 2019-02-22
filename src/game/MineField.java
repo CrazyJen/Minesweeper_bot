@@ -1,3 +1,5 @@
+package game;
+
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Pane;
 
@@ -5,21 +7,34 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+//Игровое поле
 public class MineField extends Pane {
     private final double TILE_SIZE = 40;
+    //Матрица ячеек поля
     private Tile[][] field;
+    //Счётчик открытых ячеек на поле
     private int totallyOpened = 0;
+    //Параметр, показывающий закончена ли игра
     private boolean endMessageShown = false;
+    //Параметр, определяющий является ли открытая ячейка первой открытой в данной партии
+    //(Чтобы не бабахнуться с первого клика)
     private boolean firstClick = true;
+    //Размеры поля и кол-во мин (подаётся из объёкта Settings)
+    private int X_TILES, Y_TILES, MINES;
 
+    //Конструктор
+    //Добавление ячеек в массив поля и "навшивание" на каждую слушателя кликов мышки
     public MineField(int X_TILES, int Y_TILES, int MINES) {
+        this.X_TILES = X_TILES;
+        this.Y_TILES = Y_TILES;
+        this.MINES = MINES;
         field = new Tile[X_TILES][Y_TILES];
         for (int x = 0; x < X_TILES; x++) {
             for (int y = 0; y < Y_TILES; y++) {
                 Tile tile = new Tile(x, y, TILE_SIZE);
                 field[x][y] = tile;
                 tile.setOnMouseClicked(e -> {
-                    if (e.getButton() == MouseButton.PRIMARY) this.open(tile, X_TILES, Y_TILES, MINES);
+                    if (e.getButton() == MouseButton.PRIMARY) this.open(tile);
                     if (e.getButton() == MouseButton.SECONDARY)
                         if (!tile.isOpen()) {
                             if (tile.isFlagged()) {
@@ -34,9 +49,11 @@ public class MineField extends Pane {
         }
     }
 
-    private void mining(int X_TILES, int Y_TILES, int MINES, int xFirst, int yFirst) {
+    //Минирование поля (при открытии первой ячейки)
+    private void mining(int xFirst, int yFirst) {
         int setMines = 0;
 
+        //Выбор рандомной ячейки на поле и минирование (если это не первая открытая ячейка)
         while (setMines < MINES) {
             Random random = new Random();
             int x = random.nextInt(X_TILES);
@@ -50,12 +67,13 @@ public class MineField extends Pane {
             }
         }
 
+        //Проставление количества "опасных" соседей в ячейки
         for (int x = 0; x < X_TILES; x++)
             for (int y = 0; y < Y_TILES; y++) {
                 Tile tile = field[x][y];
                 if (!tile.isMined()) {
                     int bombs = 0;
-                    List<Tile> neighbours = this.getNeighbours(tile, X_TILES, Y_TILES);
+                    List<Tile> neighbours = this.getNeighbours(tile);
                     for (Tile t : neighbours)
                         if (t.isMined()) bombs++;
                     if (bombs > 0)
@@ -64,8 +82,8 @@ public class MineField extends Pane {
             }
     }
 
-
-    private List<Tile> getNeighbours(Tile tile, int X_TILES, int Y_TILES) {
+    //Функция для получения всех соседей клетки
+    private List<Tile> getNeighbours(Tile tile) {
         List<Tile> neighbours = new ArrayList<>();
         int x = tile.getxCoord();
         int y = tile.getyCoord();
@@ -81,13 +99,18 @@ public class MineField extends Pane {
         return neighbours;
     }
 
-    private void open(Tile tile, int X_TILES, int Y_TILES, int MINES) {
+    //Функция для открытия клетки
+    private void open(Tile tile) {
+        //Если это первая открытая ячейка - минируем поле
         if (firstClick) {
-            mining(X_TILES, Y_TILES, MINES, tile.getxCoord(), tile.getyCoord());
+            mining(tile.getxCoord(), tile.getyCoord());
             firstClick = false;
         }
+
+        //Если ячейка уже открыта или помечена игроком, как "опасная" - не делаем ничего
         if (tile.isOpen() || tile.isFlagged())
             return;
+        //Если ячейка не открыта и заминирована - делаем "БАБАХ" и открываем окно с сообщением о проигрыше
         if (tile.isMined()) {
             for (Tile[] t : field)
                 for (Tile e : t)
@@ -95,8 +118,8 @@ public class MineField extends Pane {
                         e.setOpen();
                     }
             if (!endMessageShown) {
-                ResultWindow.openResultWindow("Defeat!", "Game Over!");
                 endMessageShown = true;
+                ResultWindow.openResultWindow("Defeat!", "Game Over!");
             }
             return;
         }
@@ -105,18 +128,44 @@ public class MineField extends Pane {
 
         totallyOpened++;
         if (tile.getText().isEmpty()) {
-            for (Tile t : this.getNeighbours(tile, X_TILES, Y_TILES))
-                this.open(t, X_TILES, Y_TILES, MINES);
+            for (Tile t : this.getNeighbours(tile))
+                this.open(t);
 
         }
+        //После каждой открытой клетки проверяем их кол-во
+        //Если открыты все ячейки, кроме "опасных" - открываем окно с сообщением о победе
         if (totallyOpened == X_TILES * Y_TILES - MINES && !endMessageShown) {
-            ResultWindow.openResultWindow("Victory!", "You Won!");
             endMessageShown = true;
+            ResultWindow.openResultWindow("Victory!", "You Won!");
         }
     }
 
-
+    //Геттеры
     public double getTILE_SIZE() {
         return TILE_SIZE;
+    }
+
+    public boolean isEndMessageShown() {
+        return endMessageShown;
+    }
+
+    public boolean isFirstClick() {
+        return firstClick;
+    }
+
+    public int getX_TILES() {
+        return X_TILES;
+    }
+
+    public int getY_TILES() {
+        return Y_TILES;
+    }
+
+    public int getMINES() {
+        return MINES;
+    }
+
+    public Tile[][] getField() {
+        return field;
     }
 }
