@@ -1,5 +1,6 @@
 package game;
 
+import bot.support.BotGroup;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
@@ -7,6 +8,9 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Tile extends StackPane {
     //Положение ячейки на поле
@@ -55,7 +59,6 @@ public class Tile extends StackPane {
         double translateX = yCoord * TILE_SIZE;
 
 
-
         setTranslateX(translateX);
         setTranslateY(translateY);
     }
@@ -101,7 +104,7 @@ public class Tile extends StackPane {
         isMined = true;
     }
 
-    public void setFlagged(boolean flagged) {
+    public void flag(boolean flagged) {
         isFlagged = flagged;
         flag.setVisible(flagged);
     }
@@ -113,5 +116,26 @@ public class Tile extends StackPane {
 
     public void setText(String string) {
         this.text.setText(string);
+    }
+
+    public void setGroup(MineField field, ArrayList<BotGroup> groups) {
+        if (field.isFirstClick() || !this.isOpen() || this.getText().isEmpty())
+            return;
+        BotGroup newGroup = new BotGroup(Integer.parseInt(this.getText()));
+        List<Tile> neighbours = field.getNeighbours(this);
+        for (Tile neighbour : neighbours) {
+            if (!neighbour.isOpen() && !this.isFlagged()) {
+                newGroup.add(neighbour);
+            }
+        }
+        groups.add(newGroup);
+    }
+
+    @Override
+    public boolean equals(Object o){
+        if (this == o) return true;
+        if (this.getClass() != o.getClass()) return false;
+        Tile obj = (Tile) o;
+        return (this.getyCoord() == obj.getyCoord()) && (this.getxCoord() == obj.getxCoord());
     }
 }

@@ -46,7 +46,7 @@ public class Settings {
 
         //Кнопки подтверждения и отмены изменения настроек
         Button okButton = new Button("OK"),
-               cancelButton = new Button("Cancel");
+                cancelButton = new Button("Cancel");
         cancelButton.setOnAction(e -> settingsWindow.close());
         okButton.setOnAction(e -> {
             //Замена значений настриваемых полей при подтведждении изменений

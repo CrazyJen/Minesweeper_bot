@@ -38,10 +38,10 @@ public class MineField extends Pane {
                     if (e.getButton() == MouseButton.SECONDARY)
                         if (!tile.isOpen()) {
                             if (tile.isFlagged()) {
-                                tile.setFlagged(false);
+                                tile.flag(false);
                                 tile.setQuestion(true);
                             } else if (tile.hasQuestion()) tile.setQuestion(false);
-                            else tile.setFlagged(true);
+                            else tile.flag(true);
                         }
                 });
                 getChildren().add(tile);
@@ -83,7 +83,7 @@ public class MineField extends Pane {
     }
 
     //Функция для получения всех соседей клетки
-    private List<Tile> getNeighbours(Tile tile) {
+    public List<Tile> getNeighbours(Tile tile) {
         List<Tile> neighbours = new ArrayList<>();
         int x = tile.getxCoord();
         int y = tile.getyCoord();
@@ -100,7 +100,7 @@ public class MineField extends Pane {
     }
 
     //Функция для открытия клетки
-    private void open(Tile tile) {
+    public void open(Tile tile) {
         //Если это первая открытая ячейка - минируем поле
         if (firstClick) {
             mining(tile.getxCoord(), tile.getyCoord());
